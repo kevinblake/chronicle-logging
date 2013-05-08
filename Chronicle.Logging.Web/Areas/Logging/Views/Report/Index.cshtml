@@ -1,0 +1,80 @@
+﻿@using MvcJqGrid
+@using MvcJqGrid.DataReaders
+@using MvcJqGrid.Enums
+@model Chronicle.Logging.Web.Areas.Logging.Models.ReportViewModel
+
+@{
+    Layout = null;
+    var jsonReader = new JsonReader {RepeatItems = false, Id = "dataJson"};
+}
+<html>
+    <head>
+        <title>View logs</title>
+        <link href="~/Content/jquery.jqGrid/ui.jqgrid.css" rel="stylesheet" />
+        <link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
+        <script src="/Scripts/jquery-1.9.1.min.js" type="text/javascript"></script>
+    </head>
+    
+    <div class="ui-jqgrid-view">
+        
+
+        <table>
+            <tr>
+                <th>Category</th>
+                <th>Info</th>
+                <th>Debug</th>
+                <th>Warn</th>
+                <th>Error</th>
+                <th>Fatal</th>
+            </tr>
+            @foreach (var log in Model.LogSummary)
+            {
+                <tr>
+                    <td>@log.Category</td>
+                    <td>@log.Info</td>
+                    <td>@log.Debug</td>
+                    <td>@log.Warn</td>
+                    <td>@log.Error</td>
+                    <td>@log.Fatal</td>
+                </tr>
+            }
+        </table>
+    </div>
+    
+    <script>
+        function ndateFormatter(cellval, opts, rwdat, _act) {
+            var time = cellval.replace(/\/Date\(([0-9]*)\)\//, '$1');
+            var date = new Date();
+            date.setTime(time);
+            console.log(date);
+            return date.toString("dd/MM/yyyy HH:mm:ss");
+        }
+    </script>
+    
+    @(Html.Grid("GridDataBasic")
+          .SetCaption("Logs")
+          .AddColumn(new Column("Date").SetLabel("Timestamp").SetCustomFormatter("ndateFormatter"))
+          .AddColumn(new Column("Logger"))
+          .AddColumn(new Column("Message"))
+          .AddColumn(new Column("Level").SetLabel("Severity"))
+          .SetUrl(Url.Action("GetReport"))
+          .SetAutoEncode(true)
+          .SetDataType(DataType.Json)
+          .SetAutoWidth(true)
+          .SetWidth(650)
+          .SetHeight(400)
+          .SetRowNum(10)
+          .SetJsonReader(jsonReader)
+          .SetLoadUi(LoadUi.Block)
+          .SetRowList(new[] {10, 15, 20, 50})
+          .SetViewRecords(true)
+          .SetGridView(true)
+          .SetEmptyRecords("No record Found")
+          .SetShowAllSortIcons(true)
+          .SetPager("pager"))
+    
+    <script src="~/Scripts/date.js"></script>
+    <script src="~/Scripts/i18n/grid.locale-en.js"></script>
+    <script src="~/Scripts/jquery.jqGrid.js"></script>
+
+</html>
